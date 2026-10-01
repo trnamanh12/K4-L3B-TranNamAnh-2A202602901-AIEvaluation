@@ -1,0 +1,440 @@
+{
+  "judge_model": "gemini-3.5-flash-lite",
+  "dataset_size": 20,
+  "source_dataset_size": 20,
+  "threshold": 0.7,
+  "summary": {
+    "ragas": {
+      "averages": {
+        "context_precision": 0.8124999999325,
+        "context_recall": 0.9708333333333334
+      },
+      "failed_ids": [
+        "H01",
+        "H03",
+        "H04",
+        "M04",
+        "M06"
+      ]
+    },
+    "deepeval": {
+      "averages": {
+        "context_precision": 0.9363888888888889,
+        "context_recall": 0.9875
+      },
+      "failed_ids": [
+        "H03"
+      ]
+    },
+    "comparison": {
+      "case_ids": [
+        "A01",
+        "A02",
+        "A03",
+        "E01",
+        "E02",
+        "E03",
+        "E04",
+        "E05",
+        "H01",
+        "H02",
+        "H03",
+        "H04",
+        "H05",
+        "M01",
+        "M02",
+        "M03",
+        "M04",
+        "M05",
+        "M06",
+        "M07"
+      ],
+      "same_cases": 20,
+      "threshold": 0.7,
+      "context_precision_mae": 0.15166666672,
+      "context_recall_mae": 0.01666666666666667,
+      "score_disagreement_ids": [
+        "A01",
+        "H01",
+        "H02",
+        "H04",
+        "H05",
+        "M04",
+        "M06"
+      ],
+      "shared_failed_ids": [
+        "H03"
+      ],
+      "ragas_only_failed_ids": [
+        "H01",
+        "H04",
+        "M04",
+        "M06"
+      ],
+      "deepeval_only_failed_ids": [],
+      "failure_jaccard": 0.2
+    }
+  },
+  "per_case": {
+    "A01": {
+      "ragas": {
+        "context_precision": 0.8333333332916666,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all statements in the expected output are fully supported by node(s) in retrieval context, successfully addressing both the out-of-scope medical query and the permitted OrbitTech support topics."
+        },
+        "context_precision": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because the first retrieval context node correctly addresses the query by stating that 'requests for medical diagnosis are outside scope and defines how to handle out-of-scope requests', while all irrelevant nodes are appropriately ranked lower."
+        }
+      }
+    },
+    "A02": {
+      "ragas": {
+        "context_precision": 0.99999999995,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all information in the expected output is fully supported by the nodes in the retrieval context, with sentences accurately attributed to the 1st and 2nd nodes."
+        },
+        "context_precision": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all relevant nodes are perfectly positioned at the top! The first node and second node correctly provide the necessary policies regarding overriding rules and authorization. Meanwhile, the third node, fourth node, and fifth node are correctly ranked lower since they discuss carrier loss, return requirements, and account security rather than the requested prompt rejection policy."
+        }
+      }
+    },
+    "A03": {
+      "ragas": {
+        "context_precision": 0.8333333332916666,
+        "context_recall": 0.75
+      },
+      "deepeval": {
+        "context_precision": {
+          "score": 0.8055555555555555,
+          "passed": true,
+          "reason": "The score is 0.81 because while the relevant nodes like the first node, which states that 'An online order is created when OrbitTech displays an order number and sends a confirmation email. A pending card authorization is not proof that the order was accepted.', are generally ranked well, the ranking is slightly penalized because irrelevant nodes such as the second node, which states that 'It discusses suspected card fraud and account restrictions, which are not relevant to the user's inquiry about delivery status and address change.', and the fifth node, which states that 'It talks about policy versions, return-policy eligibility, and warranty coverage, none of which help answer the delivery status or address change request.', appear among the results instead of being ranked lower than all relevant nodes."
+        },
+        "context_recall": {
+          "score": 0.75,
+          "passed": true,
+          "reason": "The score is 0.75 because sentences one through three of the expected output are well-supported by node(s) in retrieval context 1 and 3, whereas the final sentence regarding the exact conditions for editing an address lacks complete attribution."
+        }
+      }
+    },
+    "E01": {
+      "ragas": {
+        "context_precision": 0.9999999999,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_precision": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because the first node correctly states that 'The NovaBook 14 is a 14-inch laptop with two USB-C ports' and that 'It charges through either USB-C port with a 65 W USB-C Power Delivery adapter.' All irrelevant nodes, such as the second node discussing 'the PulsePhone X', the third node providing 'warranty information for OrbitTech devices', the fourth node about 'the AeroBuds Pro wireless earbuds', and the fifth node detailing 'general warranty coverage', are correctly ranked lower than the relevant node."
+        },
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all information regarding the NovaBook 14's USB-C ports and charging capabilities is fully supported by node(s) in retrieval context 1."
+        }
+      }
+    },
+    "E02": {
+      "ragas": {
+        "context_precision": 0.9999999999,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_precision": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because the first node correctly states that 'Up to two gift cards may be combined with one card payment.', and it is appropriately ranked above all irrelevant nodes, such as the second node discussing 'refunds, inspection, and return windows' and the third node explaining 'online order creation and card authorization'."
+        },
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all sentences in the expected output are fully supported by the node(s) in retrieval context."
+        }
+      }
+    },
+    "E03": {
+      "ragas": {
+        "context_precision": 0.9999999999,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_precision": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because the first node is correctly ranked at the top since \"It directly provides the answer regarding standard domestic shipping time, stating that it 'normally arrives in three to five business days after dispatch.'\", while the irrelevant nodes regarding OrbitPlus membership, tracking availability, return windows, and refund processing are appropriately ranked lower."
+        },
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all sentences in the expected output are fully supported by the 1st node in the retrieval context. Fantastic work!"
+        }
+      }
+    },
+    "E04": {
+      "ragas": {
+        "context_precision": 0.9999999999,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_precision": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because the first node is correctly ranked at the top since \"It explicitly states that 'The AeroBuds Pro and separately purchased OrbitTech accessories have a 12-month warranty.'\", while the subsequent irrelevant nodes that discuss wireless earbuds, warranty service remedies, return policies, and warranty exclusions are appropriately ranked lower."
+        },
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because the sentence in the expected output is fully supported by the 1st node in the retrieval context. Fantastic job!"
+        }
+      }
+    },
+    "E05": {
+      "ragas": {
+        "context_precision": 0.9999999999,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all sentences in the expected output are fully supported by the 1st node in the retrieval context."
+        },
+        "context_precision": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because the first node in the retrieval contexts is correctly ranked at the top, perfectly addressing account authentication and staff restrictions since it explicitly mentions that 'An OrbitTech account uses a verified email address and supports multi-factor authentication' and that 'OrbitTech staff will never request a password or one-time authentication code.' All irrelevant nodes, including the second node which discusses general safety rules for the assistant regarding overridden rules and private data, the third node which talks about product availability, color, storage, and warranty policies, the fourth node which discusses order information provision and privacy request forms, and the fifth node which pertains to requests outside the scope of customer support such as medical diagnosis or legal representation, are appropriately ranked lower."
+        }
+      }
+    },
+    "H01": {
+      "ragas": {
+        "context_precision": 0.9999999999,
+        "context_recall": 0.6666666666666666
+      },
+      "deepeval": {
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all sentences in the expected output are fully supported by information found in the nodes in retrieval context, accurately linking the August 28 order to Return Policy version 1.0, the 21-day return window, and the September 5 delivery date."
+        },
+        "context_precision": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because the first node was correctly ranked at the top since \"It explicitly states that 'Return Policy version 1.0 applies to orders placed before September 1, 2026' and that 'Orders placed before September 1 keep the 21-day version 1.0 window regardless of membership.'\". Meanwhile, the irrelevant nodes were properly placed below it: the second node was ranked lower because \"It describes rules for orders placed on or after September 1, 2026, which does not apply to the August 28 order.\"; the third node was ranked lower because \"It discusses OrbitPlus extending the window from 30 to 45 calendar days, but the context states this does not apply to pre-September 1 orders.\"; the fourth node was ranked lower because \"It details OrbitPlus pricing, shipping, and member discounts, which are irrelevant to calculating the return window length.\"; and the fifth node was ranked lower because \"It pertains to shipping address edits, tax calculation, and references returns generally, but does not provide specific return window rules for this case.\"."
+        }
+      }
+    },
+    "H02": {
+      "ragas": {
+        "context_precision": 0.8333333332916666,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all sentences in the expected output are fully supported by the nodes in retrieval context, specifically referencing version applicability from the 1st node, standard delivery windows from the 2nd node, membership active-date conditions from the 3rd node, and cancellation policies from the 4th node."
+        },
+        "context_precision": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all relevant nodes are perfectly ranked ahead of any irrelevant ones, with the first node explaining that 'Return Policy version 2.0 applies to orders placed on or after September 1, 2026' and that 'For version 2.0 orders, the extension applies only when OrbitPlus was active on the order date.', the second node mentioning that 'an unopened standard device may be returned within 30 calendar days after confirmed delivery' and references how OrbitPlus may extend the unopened-device window, the third node stating that 'OrbitPlus extends the unopened-device return window from 30 to 45 calendar days for eligible purchases made while membership is active.', and the fourth node confirming that 'The membership benefit must be active when the order is placed' and clarifying rules regarding membership cancellation, all correctly placed before the fifth node which discusses warranties, repair processes, and accidental damage, which are not relevant to whether the unopened device is within the return window."
+        }
+      }
+    },
+    "H03": {
+      "ragas": {
+        "context_precision": 0.49999999995,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all sentences in the expected output are fully supported by the information provided in node(s) in retrieval context 2."
+        },
+        "context_precision": {
+          "score": 0.5,
+          "passed": false,
+          "reason": "The score is 0.50 because the first node in the retrieval contexts is ranked too high even though it describes the policy 'For orders placed on or after September 1, 2026', but the order in the input was placed on August 31, 2026. It should be ranked lower than the relevant second node, which correctly states that 'Return Policy version 1.0 applies to orders placed before September 1, 2026. It allowed... seven calendar days for opened devices, and charged a 15% opened-device restocking fee', and that 'The 45-day OrbitPlus unopened-device benefit was introduced with version 2.0. Orders placed before September 1 keep the 21-day version 1.0 window regardless of membership'."
+        }
+      }
+    },
+    "H04": {
+      "ragas": {
+        "context_precision": 0.249999999975,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all sentences in the expected output are fully supported by node(s) in retrieval context: sentence 1 and 2 are supported by the 2nd and 3rd nodes, sentence 3 by the 4th node, and sentences 4 and 5 by the 1st node."
+        },
+        "context_precision": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all relevant nodes containing the necessary warranty and repair details are ranked at the very top, while the irrelevant node discussing return windows is correctly placed at the bottom."
+        }
+      }
+    },
+    "H05": {
+      "ragas": {
+        "context_precision": 0.9999999999,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_precision": {
+          "score": 0.75,
+          "passed": true,
+          "reason": "The score is 0.75 because while the first node correctly states that 'After inspection, refunds are issued to the original payment methods within five to seven business days. Gift-card portions return to a replacement gift card. Original standard-shipping fees are not refunded for preference returns.', the second and third nodes are irrelevant since the second discusses OrbitPlus annual membership and free standard shipping, and the third pertains to carrier-confirmed loss and express-shipping fee refunds rather than preference return refunds. These irrelevant nodes should have been ranked lower than the relevant fourth node, which supports the detail that 'OrbitTech cannot refund cash for a gift-card-funded portion; that amount returns to a replacement gift card.'"
+        },
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all sentences in the expected output are fully supported by the nodes in retrieval context, with the first sentence backed by the 1st node, the second sentence supported by the 1st and 4th nodes, and the third sentence verified by the 1st node."
+        }
+      }
+    },
+    "M01": {
+      "ragas": {
+        "context_precision": 0.9999999999,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all sentences in the expected output are fully supported by the 1st node in retrieval context."
+        },
+        "context_precision": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because the first node is relevant, stating that 'The shipping address may be edited only while an order is Confirmed. For security, changing the destination country is never allowed; the customer must cancel and place a new order.', and it is ranked above all irrelevant nodes, such as the second node which discusses carrier loss and express-shipping fees, the third node which pertains to account compromise and unauthorized orders, the fourth node which refers to the warranty, return policy, and repair processes, and the fifth node which concerns membership benefits and refunds for OrbitPlus."
+        }
+      }
+    },
+    "M02": {
+      "ragas": {
+        "context_precision": 0.99999999995,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all information regarding the promotional bundle return policy and gift deductions is fully supported by the 1st node in retrieval context."
+        },
+        "context_precision": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all relevant nodes containing the policy that 'A promotional bundle must be returned as a bundle. If a customer keeps a free gift... its stated promotional value is deducted from the refund' and reinforcing that 'Promotional bundles must follow the bundle rule' are perfectly ranked at the very top as the first node and second node, whereas the irrelevant nodes discussing general refund timelines, standard return windows, and payment methods are correctly placed lower in the rankings."
+        }
+      }
+    },
+    "M03": {
+      "ragas": {
+        "context_precision": 0.99999999995,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all sentences in the expected output are fully supported by node(s) in retrieval context, specifically nodes 2 and 5."
+        },
+        "context_precision": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because the first node correctly mentions that 'Opened ear-tip packages are treated as hygiene accessories under 05_returns_and_exchanges.md' and the second node states that 'Opened ear tips, in-ear audio products, screen protectors, and other hygiene or single-use accessories are non-returnable unless defective', both of which are appropriately ranked higher than the irrelevant nodes regarding tracking, warranty coverage, and general return windows."
+        }
+      }
+    },
+    "M04": {
+      "ragas": {
+        "context_precision": 0.0,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all statements in the expected output are fully supported by node(s) in retrieval context, specifically referencing the membership refund and return window policies."
+        },
+        "context_precision": {
+          "score": 0.9166666666666666,
+          "passed": true,
+          "reason": "The score is 0.92 because the relevant nodes, such as the first node stating that 'Cancelling membership within 14 calendar days produces a full membership refund only if no member discount, free shipping, or priority service has been used. Otherwise, the membership remains active until its annual expiry and is not refunded.', the second node mentioning that the 'opened standard device may be returned within 14 calendar days', and the fourth node confirming that 'It does not extend the 14-day opened-device window', are mostly ranked high. However, the score is not higher because the irrelevant nodes, specifically the third node discussing that 'It discusses Return Policy versions and historical dates, which are not needed to answer the specific question about the user's membership refund and opened-device return window.' and the fifth node talking about 'It talks about promotional bundles and keeping free gifts, which is completely irrelevant to membership fee refunds and opened-device return windows.', are interspersed among the relevant ones rather than being ranked lower."
+        }
+      }
+    },
+    "M05": {
+      "ragas": {
+        "context_precision": 0.9999999999,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all sentences in the expected output are fully supported by node(s) in retrieval context, accurately capturing the carrier trace and refund policies."
+        },
+        "context_precision": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because the first node in the retrieval contexts is correctly placed at the top as it directly contains the rules for delayed packages ('no tracking update for three business days beyond the latest estimated delivery date') and states that 'A refund or replacement is not issued while an active trace is within its five-business-day investigation period.' In contrast, the second node in the retrieval contexts discusses standard domestic and express shipping times, which is not relevant to whether a refund can be issued during an active carrier trace; the third node in the retrieval contexts explains how to file a formal service complaint and supervisor reviews, which does not answer the question about immediate refunds during a carrier trace; the fourth node in the retrieval contexts relates to repair diagnosis and repair times at a service centre, which is irrelevant to shipping tracking delays and refunds; and the fifth node in the retrieval contexts details policy versioning and effective dates, which is not useful for determining the refund policy during a carrier trace. All irrelevant nodes were successfully ranked lower than the relevant node."
+        }
+      }
+    },
+    "M06": {
+      "ragas": {
+        "context_precision": 0.0,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_precision": {
+          "score": 0.7555555555555555,
+          "passed": true,
+          "reason": "The score is 0.76 because while the first, third, and fifth nodes provide relevant information regarding the required escalation review and loaner policy, the irrelevant second node ('It discusses general warranty service remedies and replacement parts, which is not needed to answer the specific questions.') and fourth node ('It describes the NovaBook 14 specifications and USB-C ports, which is completely irrelevant.') are improperly ranked above some of the relevant nodes."
+        },
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all sentences in the expected output are fully supported by the 1st and 3rd nodes in the retrieval context, ensuring complete and accurate recall."
+        }
+      }
+    },
+    "M07": {
+      "ragas": {
+        "context_precision": 0.9999999999,
+        "context_recall": 1.0
+      },
+      "deepeval": {
+        "context_precision": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because the first node in the retrieval contexts is directly relevant as it 'directly provides the required steps for account compromise and unauthorized orders, stating that a customer should 'reset the password from a trusted device, revoke active sessions, enable multi-factor authentication, and contact Account Security' and detailing what happens if the order is Confirmed or packing/dispatched.' Meanwhile, the irrelevant nodes correctly follow at lower ranks, such as the second node which 'discusses order cancellation general policies and carrier interception, which are not uniquely required since the primary context already covers the specific actions for unauthorized orders,' and the third node which 'details how an online order is created and payment capture, which is irrelevant to the actions needed for an unauthorized order in progress.' Excellent job prioritizing the most helpful information right at the top!"
+        },
+        "context_recall": {
+          "score": 1.0,
+          "passed": true,
+          "reason": "The score is 1.00 because all sentences in the expected output are fully supported by node(s) in retrieval context."
+        }
+      }
+    }
+  }
+}
