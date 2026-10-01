@@ -36,7 +36,7 @@ Các file sinh ra trong quá trình chạy (artifacts) là tùy chọn (optional
 - `artifacts/actual_answers.json`
 - `artifacts/benchmark_results.json`
 
-> ⚠️ **CẢNH BÁO BẢO MẬT:** Tuyệt đối **KHÔNG commit** file `.env`, OpenAI API key hoặc bất kỳ thông tin bí mật nào lên GitHub repository. Vi phạm sẽ bị trừ **10 điểm**.
+> ⚠️ **CẢNH BÁO BẢO MẬT:** Tuyệt đối **KHÔNG commit** file `.env`, Gemini API key hoặc bất kỳ thông tin bí mật nào lên GitHub repository. Vi phạm sẽ bị trừ **10 điểm**.
 
 ## 4. Nơi nộp và Hạn nộp (Deadline)
 - **Nơi nộp:** Nộp link GitHub repository cá nhân lên Codelab.

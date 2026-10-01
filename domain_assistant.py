@@ -21,7 +21,8 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from dotenv import load_dotenv
-from openai import OpenAI, OpenAIError
+from google import genai
+from google.genai import errors, types
 
 load_dotenv(Path(__file__).resolve().with_name(".env"))
 
@@ -242,27 +243,42 @@ class TextGenerator(Protocol):
     def generate(self, prompt: str) -> str: ...
 
 
-class OpenAIGenerator:
+class GeminiGenerator:
     def __init__(self, max_output_tokens: int = 300) -> None:
-        api_key = os.getenv("OPENAI_API_KEY", "").strip()
-        self.model = os.getenv("OPENAI_MODEL", "").strip()
+        api_key = os.getenv("GEMINI_API_KEY", "").strip()
+        self.model = os.getenv("GEMINI_MODEL", "").strip()
         if not api_key:
-            raise RuntimeError("OPENAI_API_KEY is missing from .env")
+            raise RuntimeError("GEMINI_API_KEY is missing from .env")
         if not self.model:
-            raise RuntimeError("OPENAI_MODEL is missing from .env")
-        self.client = OpenAI(api_key=api_key)
+            raise RuntimeError("GEMINI_MODEL is missing from .env")
+        self.client = genai.Client(api_key=api_key)
         self.max_output_tokens = max_output_tokens
+        self._last_request_at = 0.0
 
     def generate(self, prompt: str) -> str:
-        response = self.client.responses.create(
-            model=self.model,
-            input=prompt,
-            temperature=0,
-            max_output_tokens=self.max_output_tokens,
-        )
-        answer = response.output_text.strip()
+        # Keep below the configured Gemini free-tier limit of five requests/minute.
+        wait = 13.0 - (time.monotonic() - self._last_request_at)
+        if wait > 0:
+            time.sleep(wait)
+        self._last_request_at = time.monotonic()
+        for attempt in range(3):
+            try:
+                response = self.client.models.generate_content(
+                    model=self.model,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=0,
+                        max_output_tokens=self.max_output_tokens,
+                    ),
+                )
+                break
+            except errors.ServerError:
+                if attempt == 2:
+                    raise
+                time.sleep(15 * (attempt + 1))
+        answer = (response.text or "").strip()
         if not answer:
-            raise RuntimeError("OpenAI returned an empty answer")
+            raise RuntimeError("Gemini returned an empty answer")
         return answer
 
 
@@ -299,7 +315,7 @@ class DomainAssistant:
         return cls(
             corpus_id,
             BM25Retriever(chunks),
-            generator if generator is not None else OpenAIGenerator(),
+            generator if generator is not None else GeminiGenerator(),
             top_k,
         )
 
@@ -380,6 +396,7 @@ def generate_actual_answers(
     generator: TextGenerator | None = None,
     top_k: int = 5,
     progress: ProgressCallback | None = None,
+    checkpoint_path: str | Path | None = None,
 ) -> dict[str, Any]:
     """Generate the auditable actual-answer artifact for all dataset questions."""
 
@@ -405,10 +422,46 @@ def generate_actual_answers(
         f"model={model}, top_k={top_k}"
     )
 
+    agent = {
+        "name": "domain-assistant",
+        "model": model,
+        "top_k": top_k,
+        "prompt_version": "1.0",
+    }
+    expected_questions = {item["id"]: item["question"] for item in questions}
+    cached: dict[str, dict[str, Any]] = {}
+    checkpoint = Path(checkpoint_path).expanduser().resolve() if checkpoint_path else None
+    if checkpoint and checkpoint.is_file():
+        try:
+            saved = json.loads(checkpoint.read_text(encoding="utf-8"))
+            records = saved.get("answers", [])
+            if (
+                saved.get("corpus_id") == assistant.corpus_id
+                and saved.get("agent") == agent
+                and isinstance(records, list)
+            ):
+                for record in records:
+                    if (
+                        isinstance(record, dict)
+                        and isinstance(record.get("id"), str)
+                        and record.get("id") in expected_questions
+                        and record.get("question") == expected_questions[record["id"]]
+                        and isinstance(record.get("actual_answer"), str)
+                        and record["actual_answer"].strip()
+                        and record.get("error") is None
+                        and isinstance(record.get("retrieved_contexts"), list)
+                        and record["retrieved_contexts"]
+                    ):
+                        cached[record["id"]] = record
+        except (OSError, json.JSONDecodeError, AttributeError):
+            cached = {}
+        if cached:
+            notify(f"Resuming {len(cached)} saved answers from {checkpoint}")
+
     answers: list[dict[str, Any]] = []
     for index, item in enumerate(questions, start=1):
         percentage = index / total
-        completed_before = index - 1
+        completed_before = len(answers)
         filled_before = round(20 * completed_before / total)
         bar_before = "#" * filled_before + "-" * (20 - filled_before)
         question_preview = re.sub(r"\s+", " ", item["question"]).strip()
@@ -418,6 +471,11 @@ def generate_actual_answers(
             f"[{bar_before}] {completed_before:02d}/{total:02d} | "
             f"{item['id']} generating: {question_preview}"
         )
+
+        if item["id"] in cached:
+            answers.append(cached[item["id"]])
+            notify(f"[{bar_before}] {index:02d}/{total:02d} | {item['id']} resumed")
+            continue
 
         started_at = time.perf_counter()
         try:
@@ -444,6 +502,21 @@ def generate_actual_answers(
             }
         )
 
+        if checkpoint:
+            checkpoint.parent.mkdir(parents=True, exist_ok=True)
+            partial = {
+                "schema_version": "1.0",
+                "corpus_id": assistant.corpus_id,
+                "agent": agent,
+                "answers": answers,
+            }
+            temporary = checkpoint.with_suffix(checkpoint.suffix + ".tmp")
+            temporary.write_text(
+                json.dumps(partial, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            temporary.replace(checkpoint)
+
         filled_after = round(20 * percentage)
         bar_after = "#" * filled_after + "-" * (20 - filled_after)
         elapsed = time.perf_counter() - started_at
@@ -456,12 +529,7 @@ def generate_actual_answers(
         "schema_version": "1.0",
         "corpus_id": assistant.corpus_id,
         "generated_at": datetime.now(UTC).isoformat(),
-        "agent": {
-            "name": "domain-assistant",
-            "model": model,
-            "top_k": top_k,
-            "prompt_version": "1.0",
-        },
+        "agent": agent,
         "answers": answers,
     }
 
@@ -500,6 +568,9 @@ def main() -> int:
             args.corpus_dir,
             top_k=args.top_k,
             progress=lambda message: print(message, flush=True),
+            checkpoint_path=args.output.with_name(
+                args.output.stem + ".partial" + args.output.suffix
+            ),
         )
         output = args.output.expanduser().resolve()
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -508,7 +579,10 @@ def main() -> int:
             json.dumps(artifact, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
-    except (OSError, OpenAIError, TypeError, ValueError, RuntimeError) as exc:
+        args.output.with_name(
+            args.output.stem + ".partial" + args.output.suffix
+        ).unlink(missing_ok=True)
+    except (OSError, errors.APIError, TypeError, ValueError, RuntimeError) as exc:
         print(f"ERROR: {exc}")
         return 2
     print(f"Generated {len(artifact['answers'])} actual answers: {output}")

@@ -13,7 +13,7 @@ khi golden dataset validate thành công.
 `domain_assistant.py` là RAG assistant cho OrbitTech Store Customer Support:
 
 ```text
-question → BM25 retrieval → retrieved chunks → OpenAI model → actual answer
+question → BM25 retrieval → retrieved chunks → Gemini model → actual answer
 ```
 
 Đây là thành phần **sinh câu trả lời thật**.
@@ -121,7 +121,7 @@ python -m pip install -r requirements.txt
 Kiểm tra import:
 
 ```bash
-python -c "import openai, dotenv, pytest; print('Environment OK')"
+python -c "import google.genai, dotenv, pytest; print('Environment OK')"
 ```
 
 ---
@@ -552,9 +552,12 @@ sinh actual answers và làm Exercise 3.2.
 
 ---
 
-## 7. Cấu hình OpenAI API
+## 7. Cấu hình Gemini API
 
 Chỉ `domain_assistant.py` cần API key.
+
+Tạo key trong [Google AI Studio](https://aistudio.google.com/app/apikey), rồi
+dán key vào `.env` trên máy của bạn:
 
 macOS/Linux:
 
@@ -571,12 +574,13 @@ Copy-Item .env.example .env
 Mở `.env` và điền:
 
 ```dotenv
-OPENAI_API_KEY=<API_KEY_CUA_BAN>
-OPENAI_MODEL=gpt-4o-mini
+GEMINI_API_KEY=<API_KEY_CUA_BAN>
+GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 
 `.env` đã nằm trong `.gitignore`. Không paste key vào source code, notebook,
-artifact, terminal screenshot hoặc commit.
+artifact, terminal screenshot hoặc commit. Gemini Python SDK đọc key từ biến
+môi trường `GEMINI_API_KEY`; `domain_assistant.py` nạp biến này từ `.env`.
 
 ---
 
@@ -801,10 +805,10 @@ environment đã được activate.
 |---|---|---|
 | Không nhận lệnh `python`, `python3` hoặc `py` | Python chưa được cài hoặc launcher chưa nằm trong `PATH` | Cài Python 3.11+ rồi dùng lệnh tương ứng với hệ điều hành ở Mục 2 |
 | `ImportError: cannot import name UTC from datetime` | Venv được tạo bằng Python 3.9/3.10 | Xóa/tạo lại venv bằng Python 3.11+; kiểm tra version trước khi cài requirements |
-| `ModuleNotFoundError: openai` hoặc `dotenv` | Chưa activate venv hoặc chưa cài requirements | Activate `.venv`, rồi chạy `python -m pip install -r requirements.txt` |
+| `ModuleNotFoundError: google` hoặc `dotenv` | Chưa activate venv hoặc chưa cài requirements | Activate `.venv`, rồi chạy `python -m pip install -r requirements.txt` |
 | Validator liệt kê nhiều field rỗng | `golden_dataset.json` vẫn là form starter | Điền đủ 20 records; đây là lỗi mong đợi trước Exercise 3.1 |
 | `text is not a verbatim substring` | Evidence đã bị sửa wording/punctuation | Copy lại nguyên văn đoạn ngắn từ đúng `source_doc` |
-| `OPENAI_API_KEY is missing from .env` | Thiếu `.env`, key còn placeholder, hoặc chạy sai directory | Copy `.env.example` thành `.env`, điền key thật và chạy từ repo root |
+| `GEMINI_API_KEY is missing from .env` | Thiếu `.env`, key còn placeholder, hoặc chạy sai directory | Copy `.env.example` thành `.env`, điền key thật và chạy từ repo root |
 | `Dataset corpus_id ... does not match assistant corpus_id` | Đã sửa nhầm `corpus_id` | Khôi phục `orbittech-customer-support-v1` |
 | `question differs between artifacts` | Golden dataset đã đổi sau lần sinh answers | Validate rồi chạy lại `python domain_assistant.py` để tạo artifact mới |
 | `Complete the required TODOs in template.py first` | Core còn `NotImplementedError` | Quay lại checkpoint test tương ứng ở Mục 4.9 |
