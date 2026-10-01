@@ -30,11 +30,11 @@ critical.
 
 | Metric | Acceptable Low Score Scenario | Critical Low Score Scenario | Action Required |
 |---|---|---|---|
-| Faithfulness | | | |
-| Answer Relevance | | | |
-| Context Recall | | | |
-| Context Precision | | | |
-| Completeness | | | |
+| Faithfulness | Nếu câu hỏi nằm ngoài tài liệu, điểm thấp có thể chấp nhận khi trợ lý nói rõ là chưa có thông tin và không đoán. | Nếu trợ lý khẳng định sai về giá, chính sách hay đơn hàng thì đây là lỗi nghiêm trọng. | Đối chiếu câu trả lời với tài liệu để tìm phần nào không có căn cứ. Nếu lỗi ảnh hưởng khách hàng hoặc lặp lại, chưa nên deploy. |
+| Answer Relevance | Câu hỏi hơi mơ hồ nên câu trả lời có thêm một chút giải thích, nhưng vẫn trả lời đúng điều khách hỏi. | Câu trả lời đi sang chuyện khác hoặc không giải quyết được yêu cầu chính. | Xem lại những câu bị lệch để chỉnh prompt hoặc cách phân loại câu hỏi, rồi chạy lại các trường hợp đó. |
+| Context Recall | Với câu hỏi đơn giản không cần tra cứu, hoặc corpus vốn không có thông tin đó, recall thấp chưa chắc là vấn đề. | Câu hỏi cần thông tin cụ thể nhưng tài liệu lấy về thiếu ý quan trọng, khiến trợ lý phải tự đoán. | Kiểm tra tài liệu và cách chia đoạn, sau đó chỉnh truy vấn hoặc bổ sung nguồn còn thiếu. |
+| Context Precision | Truy vấn rộng có thể lấy vài đoạn chỉ liên quan một phần; vẫn chấp nhận được nếu đoạn cần thiết được tìm thấy và xếp đủ cao. | Kết quả đầu toàn đoạn không liên quan, còn bằng chứng cần thiết bị đẩy xuống dưới hoặc không được lấy về. | Xem lại các đoạn theo thứ tự xếp hạng, lọc bớt nhiễu và thử điều chỉnh reranking. |
+| Completeness | Nếu khách chỉ hỏi một ý thì câu trả lời ngắn vẫn ổn, miễn là đã trả lời đủ ý đó. | Câu trả lời bỏ mất một bước, điều kiện hoặc thông tin quan trọng trong đáp án chuẩn. | So từng ý trong đáp án chuẩn với câu trả lời để biết đang thiếu gì, rồi sửa và chạy lại các case đó. |
 
 ### Exercise 1.2 — Bias trong LLM-as-a-Judge
 
@@ -46,15 +46,15 @@ Ba bias thường gặp:
 
 **Câu 1: Thiết kế experiment phát hiện position bias với ít nhất hai conditions.**
 
-> *Câu trả lời:*
+> Mình sẽ chuẩn bị nhiều cặp A/B có chất lượng tương đương. Ở lượt đầu cho judge xem A trước B, lượt sau đảo thành B trước A; câu hỏi, rubric và nội dung giữ nguyên. Sau đó so xem judge có đổi lựa chọn chỉ vì thứ tự không. Nếu có, đó là dấu hiệu position bias. Nên lặp trên nhiều câu hỏi để tránh kết luận từ một ví dụ.
 
 **Câu 2: Làm thế nào giảm verbosity bias bằng rubric design?**
 
-> *Câu trả lời:*
+> Rubric nên chấm những điểm cụ thể như đúng thông tin, trả lời đúng câu hỏi và có đủ ý cần thiết. Ghi rõ câu trả lời dài không tự động được điểm cao hơn; phần giải thích lặp hoặc không liên quan không được tính thêm. Như vậy câu ngắn nhưng đủ ý vẫn có thể đạt điểm tối đa.
 
 **Câu 3: Tại sao cần calibrate LLM judge với human labels?**
 
-> *Câu trả lời:*
+> Cần so điểm của judge với người thật để biết judge đang chấm có sát và ổn định không. Nếu thường xuyên chấm lệch ở một loại câu hỏi, mình có thể sửa rubric hoặc điều chỉnh ngưỡng. Người đánh giá cũng có thể bất đồng với nhau, nên cần xem các trường hợp đó thay vì coi nhãn của một người là tuyệt đối.
 
 ### Exercise 1.3 — Evaluation trong CI/CD
 
@@ -62,13 +62,13 @@ Ba bias thường gặp:
 
 | Metric | Threshold | Lý do |
 |---|---:|---|
-| Faithfulness | | |
-| Answer Relevance | | |
-| Completeness | | |
+| Faithfulness | 0.80 | Mình đặt ngưỡng này cao vì câu trả lời hỗ trợ khách hàng không nên tự đưa ra thông tin không có trong tài liệu. |
+| Answer Relevance | 0.70 | Cho phép câu trả lời diễn đạt khác câu hỏi một chút, nhưng vẫn phải giải quyết đúng nhu cầu chính. |
+| Completeness | 0.70 | Không cần viết dài, nhưng các ý quan trọng trong đáp án chuẩn phải được nhắc đến. |
 
 **Câu 2: Khi nào dùng offline evaluation, online evaluation và human review?**
 
-> *Câu trả lời:*
+> Mình dùng offline evaluation trước khi deploy và mỗi khi đổi prompt, model hoặc retrieval để so với golden set. Sau khi deploy, online evaluation giúp theo dõi câu hỏi thực tế và phát hiện chất lượng giảm theo thời gian. Human review phù hợp với câu trả lời rủi ro cao, điểm thấp hoặc trường hợp judge không chắc; cũng nên kiểm tra ngẫu nhiên một số câu để chắc rằng judge vẫn chấm hợp lý.
 
 ---
 
