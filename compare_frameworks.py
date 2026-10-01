@@ -257,6 +257,9 @@ def _update_exercise(
     text = text[:begin] + analysis + text[finish:]
 
     comparison = summary["comparison"]
+    ragas_fail_count = len(summary["ragas"]["failed_ids"])
+    deepeval_fail_count = len(summary["deepeval"]["failed_ids"])
+    stricter = "RAGAS" if ragas_fail_count > deepeval_fail_count else "DeepEval"
     answers = (
         "- **Scores có nhất quán không?** "
         f"Context Precision: MAE {comparison['context_precision_mae']:.3f}; "
@@ -267,11 +270,13 @@ def _update_exercise(
     )
     strictness = (
         "- **Framework nào strict hơn và vì sao?** "
-        f"Trong sample này, RAGAS strict hơn theo gate {comparison['threshold']:.2f}: "
-        f"RAGAS fail {', '.join(ragas_only) or 'không có'}, DeepEval "
-        f"{('fail ' + ', '.join(deepeval_only)) if deepeval_only else 'không fail case nào'}. "
-        "Khác biệt ở H01 đến từ cách xét claim trong đáp án chuẩn với retrieved "
-        "contexts; không khái quát ngoài sample này."
+        f"Trong lần chạy {comparison['same_cases']} case này, {stricter} strict hơn "
+        f"theo gate {comparison['threshold']:.2f}: RAGAS fail {ragas_fail_count}, "
+        f"DeepEval fail {deepeval_fail_count}. Điểm Context Precision trung bình là "
+        f"{summary['ragas']['averages']['context_precision']:.3f} (RAGAS) và "
+        f"{summary['deepeval']['averages']['context_precision']:.3f} (DeepEval). "
+        "Chênh lệch có thể đến từ prompt judge và cách chuyển verdict theo từng chunk "
+        "thành score; không nên khái quát ngoài lần chạy này."
     )
     matching = (
         "- **Hai framework có tìm ra cùng failure cases không?** "

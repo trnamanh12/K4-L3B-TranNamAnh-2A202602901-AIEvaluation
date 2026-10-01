@@ -296,9 +296,9 @@ verbosity bias và self-preference bằng cách nào?
 Chỉ làm sau khi hoàn thành 3.1–3.3. Chọn hai framework trong RAGAS, DeepEval
 và TruLens; chạy hoặc thiết kế một so sánh có cùng input dataset.
 
-Chạy so sánh thực tế bằng `pip install -r requirements-frameworks.txt` rồi
-`python compare_frameworks.py --ids E05 M01 H01 A01 A02` (stratified sample),
-hoặc bỏ `--ids` để chạy đủ 20 cases. Script dùng Gemini key/model trong `.env`, lưu
+Chạy toàn bộ dataset bằng `pip install -r requirements-frameworks.txt` rồi
+`python compare_frameworks.py`. Để chạy nhanh một sample chung, truyền
+`--ids E05 M01 H01 A01 A02`. Script dùng Gemini key/model trong `.env`, lưu
 các per-case scores và DeepEval judge reasons vào `artifacts/framework_comparison.json`, rồi
 cập nhật dòng kết quả và phần phân tích bên dưới.
 
@@ -311,7 +311,7 @@ cập nhật dòng kết quả và phần phân tích bên dưới.
 | Insight rút ra | RAGAS tập trung vào định nghĩa chuẩn của các metric RAG và cho phép can thiệp sâu vào implementation; khâu tích hợp CI hoàn toàn do người dùng làm chủ. | DeepEval cung cấp sẵn giải thích chi tiết (judge reasons) và cơ chế test case thân thiện; tuy nhiên cùng một metric nhưng cách chia tách claim có thể dẫn đến chênh lệch điểm số. |
 
 - **Scores có nhất quán không?** Context Precision: MAE 0.152; Context Recall: MAE 0.017. Case lệch trên 0.10 ở ít nhất một metric: A01, H01, H02, H04, H05, M04, M06. Cần đọc judge reasons và đối chiếu human labels cho các case lệch.
-- **Framework nào strict hơn và vì sao?** Trong sample này, RAGAS strict hơn theo gate 0.70: RAGAS fail H01, H04, M04, M06, DeepEval không fail case nào. Khác biệt ở H01 đến từ cách xét claim trong đáp án chuẩn với retrieved contexts; không khái quát ngoài sample này.
+- **Framework nào strict hơn và vì sao?** Trong lần chạy 20 case này, RAGAS strict hơn theo gate 0.70: RAGAS fail 5, DeepEval fail 1. Điểm Context Precision trung bình là 0.812 (RAGAS) và 0.936 (DeepEval). Chênh lệch có thể đến từ prompt judge và cách chuyển verdict theo từng chunk thành score; không nên khái quát ngoài lần chạy này.
 - **Hai framework có tìm ra cùng failure cases không?** Cùng fail: H03; RAGAS-only: H01, H04, M04, M06; DeepEval-only: không có. Failure Jaccard 0.200.
 
 > *Phân tích:* Chạy 20 cases bằng cùng Gemini judge (gemini-3.5-flash-lite), cùng Context Precision/Recall và ngưỡng 0.70. Cả hai cùng fail: H03; chỉ RAGAS: H01, H04, M04, M06; chỉ DeepEval: không có. Failure Jaccard: 0.200. Case IDs: A01, A02, A03, E01, E02, E03, E04, E05, H01, H02, H03, H04, H05, M01, M02, M03, M04, M05, M06, M07. Score là judge-based và có thể dao động; xem per-case scores và DeepEval judge reasons tại [`artifacts/framework_comparison.json`](artifacts/framework_comparison.json).
